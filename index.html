@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión Biblioteca Personal</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Sombra suave */
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* Sombra más sutil */
+        }
+
+        p {
+            font-size: 1.2rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        button {
+            font-size: 1rem;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #34495e;
+            transform: scale(1.1);
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        .agregar {
+            background-color: #4CAF50; /* Verde */
+            color: white;
+        }
+
+        .agregar:hover {
+            background-color: #45a049; /* Verde oscuro */
+        }
+
+        .mostrar {
+            background-color: #3498db; /* Azul */
+            color: white;
+        }
+
+        .mostrar:hover {
+            background-color: #2980b9; /* Azul oscuro */
+        }
+
+        #formulario {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #34495e;
+            border-radius: 10px;
+        }
+
+        #formulario input {
+            margin-bottom: 10px;
+            padding: 10px;
+            width: 200px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #formulario button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #formulario button.cancelar {
+            background-color: #f44336;
+        }
+
+        #formulario button.cancelar:hover {
+            background-color: #e53935;
+        }
+
+        #formulario button:hover {
+            background-color: #45a049;
+        }
+
+        #biblioteca {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #34495e;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Biblioteca Personal</h1>
+    <button class="agregar" onclick="mostrarFormulario()">Agregar libro</button>
+    <button class="mostrar" onclick="mostrarBiblioteca()">Mostrar biblioteca</button>
+
+    <!-- Formulario para agregar libro -->
+    <div id="formulario">
+        <h2>Agregar nuevo libro</h2>
+        <form id="formularioLibro">
+            <input type="text" id="titulo" placeholder="Título" required><br>
+            <input type="text" id="autor" placeholder="Autor" required><br>
+            <input type="text" id="genero" placeholder="Género" required><br>
+            <button type="submit">Agregar libro</button>
+            <button type="button" class="cancelar" onclick="cancelarFormulario()">Cancelar</button>
+        </form>
+    </div>
+
+    <script>
+        let biblioteca = []; // Array donde se guardarán todos los libros
+
+        class Libro {
+            // Constructor para la clase libro
+            constructor(titulo, autor, genero) {
+                this.id = this.generarId(); // Generamos un ID único para cada libro
+                this.titulo = titulo;
+                this.autor = autor;
+                this.genero = genero;
+            }
+
+            // Método para generar un ID único
+            generarId() {
+                if (!Libro.idsGenerados) Libro.idsGenerados = new Set();
+
+                let nuevoId;
+                do {
+                    nuevoId = Math.floor(Math.random() * 1000); // Genera un ID aleatorio
+                } while (Libro.idsGenerados.has(nuevoId)); // Repite mientras el ID ya exista
+                Libro.idsGenerados.add(nuevoId); // Añade el nuevo ID al conjunto
+                return nuevoId;
+            }
+
+            // Método para mostrar la información de un libro
+            mostrarInfo() {
+                return `ID: ${this.id}, Título: ${this.titulo}, Autor: ${this.autor}, Género: ${this.genero}`;
+            }
+        }
+
+        function mostrarFormulario() {
+            // Muestra el formulario para agregar un libro
+            document.getElementById('formulario').style.display = 'block';
+        }
+
+        function cancelarFormulario() {
+            // Oculta el formulario sin agregar libro
+            document.getElementById('formulario').style.display = 'none';
+        }
+
+        // Cuando se envía el formulario, se agrega el libro
+        document.getElementById('formularioLibro').addEventListener('submit', function(event) {
+            event.preventDefault(); // Evita que el formulario se recargue
+            const titulo = document.getElementById('titulo').value;
+            const autor = document.getElementById('autor').value;
+            const genero = document.getElementById('genero').value;
+
+            // Validar campos
+            if (!titulo || !autor || !genero) {
+                alert("Por favor, complete todos los campos (título, autor y género).");
+                return;
+            }
+
+            // Crear el libro y agregarlo a la biblioteca
+            const libro = new Libro(titulo, autor, genero);
+            biblioteca.push(libro);
+            console.log(`El libro "${titulo}" se ha agregado a la biblioteca.`);
+
+            // Limpiar el formulario
+            document.getElementById('formularioLibro').reset();
+
+            // Ocultar el formulario
+            cancelarFormulario();
+        });
+
+        function mostrarBiblioteca() {
+            // Verificar si el div con id "biblioteca" ya existe
+            let divBiblioteca = document.getElementById('biblioteca');
+            
+            // Si el div no existe, crearlo
+            if (!divBiblioteca) {
+                divBiblioteca = document.createElement('div');
+                divBiblioteca.id = 'biblioteca';
+                document.body.appendChild(divBiblioteca);
+            }
+            
+            // Si la biblioteca está vacía, mostrar el mensaje correspondiente
+            if (biblioteca.length === 0) {
+                divBiblioteca.innerHTML = '';  // Limpiar el contenido del div
+                const parrafo = document.createElement('p');
+                parrafo.textContent = "La biblioteca está vacía";
+                divBiblioteca.appendChild(parrafo);
+            }
+            // Si la biblioteca tiene libros, mostrar la información de los libros
+            else {
+                divBiblioteca.innerHTML = '';  // Limpiar el contenido del div
+                const titulo = document.createElement('h2');
+                titulo.textContent = "Biblioteca";
+                divBiblioteca.appendChild(titulo);
+                
+                // Mostrar la información de los libros
+                biblioteca.forEach(libro => {
+                    const parrafo = document.createElement('p');
+                    parrafo.textContent = libro.mostrarInfo();
+                    divBiblioteca.appendChild(parrafo);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
